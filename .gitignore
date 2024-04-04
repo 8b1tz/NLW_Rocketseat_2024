@@ -2,4 +2,4 @@
 .pytest_cache
 venv
 .env
-storage.db
+storage.dbpi
