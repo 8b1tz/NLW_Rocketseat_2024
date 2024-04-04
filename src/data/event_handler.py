@@ -1,5 +1,6 @@
 import uuid
 
+from src.errors.errors_types.http_not_found import HttpNotFound
 from src.http_types.http_request import HttpRequest
 from src.http_types.http_response import HttpResponse
 from src.models.repository.events_repository import EventsRepository
@@ -16,5 +17,28 @@ class EventHandler:
 
         return HttpResponse(
             body={"eventId": body["uuid"]},
+            status_code=200
+        )
+
+    def find_by_id(self, http_request: HttpRequest) -> HttpResponse:
+        event_id = http_request.param['event_id']
+        event = self.__events_repository.get_event_by_id(event_id)
+        if not event:
+            raise HttpNotFound('Evento não encontrado')
+
+        event_attendees_count = self.__events_repository.\
+            count_event_attendees(event_id)
+
+        return HttpResponse(
+            body={
+                "event": {
+                    "id": event.id,
+                    "title": event.title,
+                    "detail": event.details,
+                    "slug": event.slug,
+                    "maximum_attendees": event.maximum_attendees,
+                    "attendeesAmount": event_attendees_count
+                }
+            },
             status_code=200
         )
